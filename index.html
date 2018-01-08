@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        /*html,body{
+            heightt: 100%;
+            margin: 333px;
+        }*/
+        body {
+        	background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas1" width="700" height="700"></canvas>
+    <canvas id="canvas2" width="700" height="700"></canvas>
+    <canvas id="canvas" width="700" height="700"></canvas>
+    <script>
+    /**
+     * https://github.com/cw1997/MirageTank
+     * 昌维 [867597730@qq.com]
+     * 2018-01-08 15:30:26
+     */
+
+        var canvas1 = document.getElementById('canvas1');
+        var context1 = canvas1.getContext('2d');
+        var canvas2 = document.getElementById('canvas2');
+        var context2 = canvas2.getContext('2d');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+
+        var imgData1, imgData2;
+
+        var imgObj1 = new Image();
+        imgObj1.src = "girl.jpg";
+        imgObj1.onload = function ()
+        {
+            context1.drawImage(imgObj1, 0,0,700,700);
+//            context.drawImage(imgObj, 0,0,700,700); //如果canvas宽高不足，可以后加参数让图片正常大小来显示
+            imgData1 = context1.getImageData(0,0,700,700);  //获取位图的像素信息
+            // pixels = getPixels(imgData, 700, 700);
+            // imgData1 = setGary(imgData1);
+            imgGray1 = getGary(imgData1, true);
+            // output(context1, imgData1);
+
+        }
+        var imgObj2 = new Image();
+        imgObj2.src = "boy.jpg";
+        imgObj2.onload = function ()
+        {
+            context2.drawImage(imgObj2, 0,0,700,700);
+//            context.drawImage(imgObj, 0,0,700,700); //如果canvas宽高不足，可以后加参数让图片正常大小来显示
+            imgData2 = context2.getImageData(0,0,700,700);  //获取位图的像素信息
+            // pixels = getPixels(imgData, 700, 700);
+            // imgData2 = setGary(imgData2);
+            imgGray2 = getGary(imgData2, false);
+            // output(context2, imgData2);
+        }
+        var imgObj = new Image();
+        imgObj.src = "boy.jpg";
+        imgObj.onload = function ()
+        {
+            context.drawImage(imgObj, 0,0,700,700);
+        }
+
+        function getGary(imgData, reverse) {
+        	var pixcount = imgData.width * imgData.height;
+        	var pixels = new Array();
+        	for(var i = 0; i < pixcount * 4; i += 4)
+            {
+                var red = imgData.data[i+0];
+                var green = imgData.data[i+1];
+                var blue = imgData.data[i+2];
+                // var alpha = imgData.data[i+3];
+                // imgData.data[i+0] = imgData.data[i+1] = imgData.data[i+2] = (red + green + blue) / 3;
+                result = (red + green + blue) / 3;
+                // if (reverse) {
+                // 	result = 255 - result;
+                // 	console.log(result)
+                // }
+                pixels.push(result);
+            }
+            console.log(pixels.length);
+            // 返回imgData.width * imgData.height个成员的数组，包括每一个像素点的灰度值，范围[0,255]
+            return pixels;
+        }
+
+        // ImgR = imgB / (1 – ImgA + ImgB);
+        setTimeout(process, 1000);
+        // process();
+
+        min = 0
+        max = 255
+
+        function process() {
+        	console.log(1);
+        	var imgDataOut = new Array();
+        	// var getGary = new Array();
+        	// setPixel(imgDataOut, )
+            var pixcount = 700 * 700;
+            for (var i = 0; i < imgGray1.length; i++) {
+            	// getGary[i] = imgRawData2[i] / (1 - imgRawData1[i] + imgRawData2[i]);
+            	result = imgGray2[i] / (imgGray2[i] + max - imgGray1[i]);
+            	result = result * 100 / 255; // 压缩值域[0,255]到[0,100]
+            	imgDataOut.push(max);
+            	imgDataOut.push(max);
+            	imgDataOut.push(max);
+            	imgDataOut.push(result);
+            	if (i<200) {
+            		console.log(result);
+            	}
+            }
+        	console.log("imgDataOut", imgDataOut.length);
+        	outputRaw(context, imgDataOut);
+        }
+
+        function getPixels(imgData) {
+            var pixcount = imgData.width * imgData.height;
+            var pixels = new Array();
+            for(var i = 0; i < pixcount * 4; i += 4) {
+                // [0,255]
+                var redData = imgData.data[i];
+                var greenData = imgData.data[i+1];
+                var blueData = imgData.data[i+2];
+                var alphaData = imgData.data[i+3];
+                pixels.push({red: redData, green: greenData, blue: blueData, alpha: alphaData});
+            }
+            return pixels;
+        }
+
+        function setPixel(imgData, red, green, blue, alpha) {
+            var pixcount = imgData.width * imgData.height;
+        	for(var i = 0; i < pixcount * 4; i += 4)
+            {
+                imgData.data[i+0] = red;
+                imgData.data[i+1] = green;
+                imgData.data[i+2] = blue;
+                imgData.data[i+3] = alpha;
+            }
+        }
+
+        function setGary(imgData) {
+            // Gray = R*0.299 + G*0.587 + B*0.114
+	        var pixcount = imgData.width * imgData.height;
+        	for(var i = 0; i < pixcount * 4; i += 4)
+            {
+                var red = imgData.data[i+0];
+                var green = imgData.data[i+1];
+                var blue = imgData.data[i+2];
+                var alpha = imgData.data[i+3];
+                imgData.data[i+0] = imgData.data[i+1] = imgData.data[i+2] = (red + green + blue) / 3;
+            }
+            return imgData;
+        }
+
+        function outputRaw(context, imgData) {
+        	pixcount = imgData1.width * imgData1.height
+        	console.log("pixcount", pixcount * 4);
+        	for(var i = 0; i < pixcount * 4; i += 4)
+            {
+                imgData1.data[i+0] = imgData[i+0];
+                imgData1.data[i+1] = imgData[i+1];
+                imgData1.data[i+2] = imgData[i+2];
+                imgData1.data[i+3] = imgData[i+3] * 255;
+                if (i<400) {
+                	console.log(imgData[i+0], imgData[i+1], imgData[i+2], imgData[i+3]);
+                }
+            }
+            context.putImageData(imgData1, 0,0);
+            console.log(2);
+        }
+
+        function output(context, imgData) {
+            context.putImageData(imgData, 0,0);
+        }
+
+
+
+    </script>
+</body>
+</html>
